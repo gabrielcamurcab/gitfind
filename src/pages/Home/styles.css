@@ -105,3 +105,8 @@ hr {
     text-align: center;
     width: 90%;
 }
+
+.loader {
+    display: block;
+    align-items: center;
+}

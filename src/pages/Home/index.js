@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Header } from "../../components/Header";
+import Loader from "../../components/Loader";
 import background from '../../assets/background.png';
 import ItemList from "../../components/ItemList";
 
@@ -10,22 +11,31 @@ function App() {
   const [user, setUser] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
   const [repos, setRepos] = useState(null);
+  const [loading, setLoading] = useState(false); // Novo estado para rastrear o carregamento
 
   const handleGetData = async () => {
-    const userData = await fetch(`https://api.github.com/users/${user}`);
-    const newUser = await userData.json();
+    setLoading(true);
 
-    if (newUser.name) {
-      const { name, avatar_url, bio, login } = newUser;
-      setCurrentUser({ name, avatar_url, bio, login });
+    try {
+      const userData = await fetch(`https://api.github.com/users/${user}`);
+      const newUser = await userData.json();
 
-      const reposData = await fetch(`https://api.github.com/users/${user}/repos`);
-      const newRepos = await reposData.json();
+      if (newUser.name) {
+        const { name, avatar_url, bio, login } = newUser;
+        setCurrentUser({ name, avatar_url, bio, login });
 
-      if (newRepos.length) {
-        setRepos(newRepos);
+        const reposData = await fetch(`https://api.github.com/users/${user}/repos`);
+        const newRepos = await reposData.json();
+
+        if (newRepos.length) {
+          setRepos(newRepos);
+        }
       }
+    } finally {
+      setLoading(false);
     }
+
+
   }
 
   return (
@@ -43,6 +53,8 @@ function App() {
             />
             <button onClick={handleGetData}>Buscar</button>
           </div>
+          {loading && <Loader />}
+
           {currentUser?.name ? (
             <>
               <div className="perfil">
